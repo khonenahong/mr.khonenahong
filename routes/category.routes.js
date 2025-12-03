@@ -1,11 +1,11 @@
 module.exports = app => {
   const categorries = require("../controllers/category.controller");
 
-  app.get("/categorries", categorries.findAll);
+  app.get("/categories", categorries.findAll);
 
-  app.post("/categorries", categorries.create);
+  app.post("/categories", categorries.create);
 
-  app.put("/categorries/:id", categorries.update);
+  app.put("/categories/:id", categorries.update);
 
-  app.delete("/categorries/:id", categorries.delete);
+  app.delete("/categories/:id", categorries.delete);
 };

@@ -5,63 +5,68 @@ const Category = function (category) {
   this.is_deleted = category.is_deleted;
 };
 
-Category.getAll = (callback) => {
-  sql.query(
-    "SELECT * FROM category WHERE is_deleted = false",
-    callback
-  );
+// Get all categories
+Category.getAll = (result) => {
+  sql.query("SELECT * FROM category", (error, response) => {
+    if (error) {
+      console.error(error);
+      result(error, null);
+      return;
+    }
+    result(null, response);
+  });
 };
 
-Category.create = (newCategory, callback) => {
-  sql.query(
-    "INSERT INTO category SET ?",
-    newCategory,
-    callback
-  );
+// Create category
+Category.create = (newCategory, result) => {
+  sql.query("INSERT INTO category SET ?", newCategory, (error, response) => {
+    if (error) {
+      console.error(error);
+      result(error, null);
+      return;
+    }
+    result(null, { id: response.insertId, ...newCategory });
+  });
 };
 
-Category.findById = (id, callback) => {
+// Update category by id
+Category.updateById = (id, updatedCategory, result) => {
   sql.query(
-    "SELECT * FROM category WHERE id = ? AND is_deleted = false",
-    id,
-    callback
-  );
-};
-
-Category.updateById = (id, category, callback) => {
-  sql.query(
-    "UPDATE category SET cat_name = ?, is_deleted = ? WHERE id = ?",
-    [category.cat_name, category.is_deleted, id],
-    (err, res) => {
-      if (err) {
-        callback(err, null);
+    "UPDATE category SET ? WHERE id = ?",
+    [updatedCategory, id],
+    (error, response) => {
+      if (error) {
+        console.error(error);
+        result(error, null);
         return;
       }
-      if (res.affectedRows == 0) {
-        callback({ kind: "not_found" }, null);
+
+      if (response.affectedRows == 0) {
+        result({ kind: "not_found" }, null);
         return;
       }
-      callback(null, { id: id, ...category });
+
+      result(null, { id: id, ...updatedCategory });
     }
   );
 };
 
-Category.remove = (id, callback) => {
-  sql.query(
-    "UPDATE category SET is_deleted = true WHERE id = ?",
-    id,
-    (err, res) => {
-      if (err) {
-        callback(err, null);
-        return;
-      }
-      if (res.affectedRows == 0) {
-        callback({ kind: "not_found" }, null);
-        return;
-      }
-      callback(null, res);
+// Delete category
+Category.remove = (id, result) => {
+  sql.query("DELETE FROM category WHERE id = ?", id, (error, response) => {
+    if (error) {
+      console.error(error);
+      result(error, null);
+      return;
     }
-  );
+
+    if (response.affectedRows == 0) {
+      result({ kind: "not_found" }, null);
+      return;
+    }
+
+    result(null, response);
+  });
 };
 
 module.exports = Category;
